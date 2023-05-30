@@ -15,10 +15,8 @@
 include "database_Access.php";
 $nombrePokemon = $_GET['nombrePokemon'];
 $columna = isset($_GET['columna']) ? $_GET['columna'] : ''; // Obtener el parámetro "columna" de la URL
-$orden = isset($_GET['orden']) && $_GET['orden'] === 'desc' ? 'desc' : 'asc'; // Obtener el parámetro "orden" de la URL y establecer el valor predeterminado en "asc"
+$orden = isset($_GET['orden']) && $_GET['orden'] === 'desc' ? 'asc' : 'desc'; 
 
-// echo "dddddddddddddddddddddddddddddddd".$_GET['nombrePokemon']."aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".$columna ;
-// Ejecutar la función MySQL de ordenación según la columna seleccionada
 if (!empty($columna)) {
   $sql = "SELECT DISTINCT p.nombre, p.numero_pokedex, m.nombre as nombreMovimiento, m.potencia, m.pp, t.nombre as tipo
           FROM pokemon p
@@ -26,41 +24,30 @@ if (!empty($columna)) {
           INNER JOIN movimiento m ON pmf.id_movimiento = m.id_movimiento
           INNER JOIN tipo t ON m.id_tipo = t.id_tipo
           WHERE p.nombre = '" . $nombrePokemon . "'
-          ORDER BY m.nombre ASC";
+          ORDER BY ".$columna." " . $orden . "";
           // ORDER BY $columna $orden";
-          // echo "llegaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" . $nombrePokemon ."finnnnnnn";
-  // Ejecutar la consulta
   $resultado = mysqli_query($mysqli, $sql);
-  //echo"NOllega";
 } else {
-  // Si no se ha seleccionado ninguna columna, obtener los datos sin ordenación
   $sql = "SELECT DISTINCT p.nombre, p.numero_pokedex, m.nombre as nombreMovimiento, m.potencia, m.pp, t.nombre as tipo
           FROM pokemon p
           INNER JOIN pokemon_movimiento_forma pmf ON p.numero_pokedex = pmf.numero_pokedex
           INNER JOIN movimiento m ON pmf.id_movimiento = m.id_movimiento
           INNER JOIN tipo t ON m.id_tipo = t.id_tipo
           WHERE p.nombre = '" . $nombrePokemon . "'";
-  // Ejecutar la consulta
   $resultado = mysqli_query($mysqli, $sql);
 }
-// echo"llega";
 function cambiarOrden($orden) {
-    if ($orden == 'ASC') {
-      return 'DESC';
-    } else {
-      return 'ASC';
-    }
+    ($orden === 'asc' ? 'desc' : 'asc');
   }
-  // echo"llega";
 if ($resultado->num_rows > 0) {
-  // Construir la tabla HTML con los resultados
+  echo "aaaaaaaaaaaaaaaaaaaaaaa".($orden);
   echo "<table>";
-  echo "<tr><th><a href='?columna=numero_pokedex&nombrePokemon=".$nombrePokemon."&orden=" . cambiarOrden($orden) . "'>pokedex</a></th>
-            <th><a href='?columna=nombre&nombrePokemon=".$nombrePokemon."&orden=" . cambiarOrden($orden) . "'>nombre</a></th>
-            <th><a href='?columna=nombreMovimiento&nombrePokemon=".$nombrePokemon."&orden=" . cambiarOrden($orden) . "'>nombreMovimiento</a></th>
-            <th><a href='?columna=potencia&nombrePokemon=".$nombrePokemon."&orden=" . cambiarOrden($orden) . "'>potencia</a></th>
-            <th><a href='?columna=pp&nombrePokemon=".$nombrePokemon."&orden=" . cambiarOrden($orden) . "'>pp</a></th>
-            <th><a href='?columna=tipo&nombrePokemon=".$nombrePokemon."&orden=" . cambiarOrden($orden) . "'>tipo</a></th></tr>";
+  echo "<tr><th><a href='?columna=numero_pokedex&nombrePokemon=".$nombrePokemon."&orden=" .($orden) . "'>pokedex</a></th>
+            <th><a href='?columna=nombre&nombrePokemon=".$nombrePokemon."&orden=" . ($orden) . "'>nombre</a></th>
+            <th><a href='?columna=nombreMovimiento&nombrePokemon=".$nombrePokemon."&orden=" . ($orden) . "'>nombreMovimiento</a></th>
+            <th><a href='?columna=potencia&nombrePokemon=".$nombrePokemon."&orden=" . ($orden) . "'>potencia</a></th>
+            <th><a href='?columna=pp&nombrePokemon=".$nombrePokemon."&orden=" . ($orden) . "'>pp</a></th>
+            <th><a href='?columna=tipo&nombrePokemon=".$nombrePokemon."&orden=" . ($orden) . "'>tipo</a></th></tr>";
 
             while ($fila = $resultado->fetch_assoc()) {
               $numero_pokedex = $fila['numero_pokedex'];
@@ -71,8 +58,6 @@ if ($resultado->num_rows > 0) {
           else
               $imagen = "src=https://assets.pokemon.com/assets/cms2/img/pokedex/full/" . $numero_pokedex . ".png";
       
-          // echo "<div class='nombre'><h1>#" . $numero_pokedex . " " . $nombre . "</h1></div>";
-          // echo "<div class='pokemon'><img " . $imagen . "></div>";
               echo "<tr>";
               echo "<td>" . $numero_pokedex . "<div class='pokemon'><img " . $imagen . " width=100 height=100></div>" . "</td>";
               echo "<td>" . $fila['nombre'] . "</td>";
